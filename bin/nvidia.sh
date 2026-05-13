@@ -13,7 +13,12 @@ echo "[*] Found NVIDIA ID: $GPU_ID"
 
 # 2. Kill the conflicts
 echo "[*] Removing conflicting open-driver packages..."
-sudo pacman -Rdd --noconfirm libxnvctrl linux-cachyos-nvidia-open linux-cachyos-lts-nvidia-open nvidia-open-dkms 2>/dev/null || true
+for pkg in libxnvctrl nvidia-open-dkms linux-cachyos-nvidia-open linux-cachyos-lts-nvidia-open; do
+    if pacman -Q "$pkg" &>/dev/null 2>&1; then
+        echo "[*] Removing $pkg..."
+        sudo pacman -Rdd --noconfirm "$pkg" || true
+    fi
+done
 
 # 3. Patch the file
 if ! grep -q "$GPU_ID" /var/lib/chwd/ids/nvidia-580.ids; then
@@ -26,9 +31,9 @@ else
     echo "[*] GPU ID already present in 580 list."
 fi
 
-# 4. Remove old profile
+# 4. Remove old profile (chwd does not accept --noconfirm)
 echo "[*] Removing old chwd profile..."
-sudo chwd -r nvidia-open-dkms --noconfirm || true
+sudo chwd -r nvidia-open-dkms || true
 
 # 5. Install new profile
 echo "[*] Installing 580xx proprietary profile..."
