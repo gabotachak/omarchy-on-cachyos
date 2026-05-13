@@ -57,6 +57,17 @@ sudo pacman -S --needed --noconfirm steam discord zen-browser-bin spotify visual
 rm -f "$HOME/.local/share/applications/Discord.desktop"
 echo "[*] Removed Discord webapp entry."
 
+# Add Shutdown app to launcher
+cat > "$HOME/.local/share/applications/shutdown.desktop" << 'EOF'
+[Desktop Entry]
+Name=Shutdown
+Exec=systemctl poweroff
+Icon=system-shutdown
+Type=Application
+Categories=System;
+EOF
+echo "[*] Shutdown app added to launcher."
+
 echo "[*] Installing Google Antigravity IDE from AUR..."
 yay -S --needed --noconfirm antigravity
 
