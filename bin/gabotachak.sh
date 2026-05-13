@@ -53,6 +53,10 @@ fi
 echo "[*] Installing personal software..."
 sudo pacman -S --needed --noconfirm steam discord zen-browser-bin spotify visual-studio-code-bin ttf-iosevka-nerd proton-cachyos proton-cachyos-slr heroic-games-launcher-bin xorg-xrdb
 
+# Remove Omarchy's Discord webapp in favor of the native app installed above
+rm -f "$HOME/.local/share/applications/Discord.desktop"
+echo "[*] Removed Discord webapp entry."
+
 echo "[*] Installing Google Antigravity IDE from AUR..."
 yay -S --needed --noconfirm antigravity
 
