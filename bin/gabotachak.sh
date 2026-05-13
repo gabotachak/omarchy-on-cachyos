@@ -68,6 +68,16 @@ Categories=System;
 EOF
 echo "[*] Shutdown app added to launcher."
 
+cat > "$HOME/.local/share/applications/reboot.desktop" << 'EOF'
+[Desktop Entry]
+Name=Reboot
+Exec=systemctl reboot
+Icon=system-reboot
+Type=Application
+Categories=System;
+EOF
+echo "[*] Reboot app added to launcher."
+
 echo "[*] Installing Google Antigravity IDE from AUR..."
 yay -S --needed --noconfirm antigravity
 
