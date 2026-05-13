@@ -40,11 +40,20 @@ else
     echo "yay is already installed."
 fi
 
-# Receive the Omarchy signing key
-sudo pacman-key --recv-keys F0134EE680CAC571
+# Receive the Omarchy signing key (try multiple keyservers)
+OMARCHY_KEY=F0134EE680CAC571
+for ks in hkps://keyserver.ubuntu.com hkps://keys.openpgp.org hkp://keyserver.ubuntu.com:80; do
+    echo "Trying keyserver: $ks"
+    sudo pacman-key --keyserver "$ks" --recv-keys "$OMARCHY_KEY" && break
+done
+
+if ! sudo pacman-key --list-keys "$OMARCHY_KEY" &>/dev/null; then
+    echo "Error: Failed to import omarchy signing key from all keyservers."
+    exit 1
+fi
 
 # Locally sign and trust the key
-sudo pacman-key --lsign-key F0134EE680CAC571
+sudo pacman-key --lsign-key "$OMARCHY_KEY"
 
 # Add omarchy repository to pacman.conf (skip if already present)
 if ! grep -q '^\[omarchy\]' /etc/pacman.conf; then
@@ -143,6 +152,10 @@ fi\
 # Update mise activation to support both bash and fish
 sed -i 's/omarchy-cmd-present mise && eval "\$(mise activate bash)"/if [ "\$SHELL" = "\/bin\/bash" ] \&\& command -v mise \&> \/dev\/null; then\n  eval "\$(mise activate bash)"\nelif [ "\$SHELL" = "\/bin\/fish" ] \&\& command -v mise \&> \/dev\/null; then\n  mise activate fish | source\nfi/' config/uwsm/env
 
+# Fix SDDM autologin to use the intended username instead of $USER.
+# The install runs as root, so without this fix autologin.conf gets User=root.
+sed -i "s/User=\\\$USER/User=$OMARCHY_USER_NAME/" install/login/sddm.sh
+
 # Copy omarchy installation files to ~/.local/share/omarchy
 mkdir -p ~/.local/share/omarchy
 cp -r . ~/.local/share/omarchy
@@ -171,6 +184,16 @@ echo ""
 echo "Press Enter to begin the installation of Omarchy..."
 read -r
 
-# Run the modified install.sh script 
+# Remove existing claude-code to prevent file conflict during omarchy install
+# (CachyOS may have installed it separately; pacman will fail if /usr/bin/claude already exists)
+if pacman -Q claude-code &>/dev/null 2>&1; then
+    echo "Removing existing claude-code package to avoid file conflict..."
+    sudo pacman -Rdd --noconfirm claude-code
+elif [ -f /usr/bin/claude ]; then
+    echo "Removing existing /usr/bin/claude to avoid file conflict..."
+    sudo rm -f /usr/bin/claude
+fi
+
+# Run the modified install.sh script
 chmod +x install.sh
 ./install.sh
