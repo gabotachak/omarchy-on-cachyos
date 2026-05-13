@@ -95,6 +95,19 @@ User writes in Spanish on a US keyboard. `kb_layout = "us"` + `kb_variant = "int
 ### Lumon as default theme
 User's aesthetic preference. Applied last in the script so hooks (SDDM wallpaper sync, Limine splash sync) are already installed before the theme switch fires them.
 
+## Snapshot Recovery (Snapper + BTRFS)
+
+The system uses Snapper + snap-pac. Every `pacman` operation creates a pre/post snapshot automatically. Full recovery instructions are in `PANIC.md`.
+
+**Quick reference:**
+
+| Situation | Action |
+|---|---|
+| GUI broken, system boots | `Ctrl+Alt+F2` → TTY → `sudo snapper rollback <n>` → reboot |
+| System doesn't boot | Live USB → `mount /dev/nvme0n1p2 /mnt` → `btrfs subvolume set-default <ID> /mnt` → reboot |
+
+Find snapshot numbers with `sudo snapper list`. Use the **pre** snapshot just before the breaking update.
+
 ## Shell Style (from Omarchy's AGENTS.md)
 
 - Two spaces for indentation, no tabs
