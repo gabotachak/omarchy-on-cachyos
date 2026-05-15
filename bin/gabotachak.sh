@@ -51,7 +51,7 @@ fi
 
 # 6. Install personal software
 echo "[*] Installing personal software..."
-sudo pacman -S --needed --noconfirm steam discord spotify visual-studio-code-bin ttf-iosevka-nerd inter-font adobe-source-serif-fonts proton-cachyos proton-cachyos-slr heroic-games-launcher-bin xorg-xrdb
+sudo pacman -S --needed --noconfirm steam discord spotify visual-studio-code-bin ttf-iosevka-nerd inter-font adobe-source-serif-fonts proton-cachyos proton-cachyos-slr heroic-games-launcher-bin xorg-xrdb vlc
 
 # Remove Omarchy's Discord webapp in favor of the native app installed above
 rm -f "$HOME/.local/share/applications/Discord.desktop"
