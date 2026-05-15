@@ -375,10 +375,10 @@ fi
 rm -f "$HOME/.config/environment.d/steam-scale.conf"
 rm -f "$HOME/.local/share/applications/steam.desktop"
 
-# 16. Set Lumon as default theme
-echo "[*] Setting Lumon theme..."
-omarchy theme set "Lumon"
-echo "[*] Lumon theme applied."
+# 16. Set Nord as default theme
+echo "[*] Setting Nord theme..."
+omarchy theme set "Nord"
+echo "[*] Nord theme applied."
 
 # 17. Copy GitHub keys to clipboard
 echo ""

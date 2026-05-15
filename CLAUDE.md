@@ -35,7 +35,7 @@ Personal post-install customization script. Idempotent — safe to re-run. Steps
 11. Rebrands boot: Limine entry → "Omarchy", splash → current Omarchy wallpaper (PNG via `magick`), Plymouth → `fade-in` with `mkinitcpio -P` rebuild
 12. Installs `~/.config/omarchy/hooks/theme-set` to sync SDDM wallpaper and Limine splash on theme change
 13. Sets `Xft.dpi` (96 × scale) in `~/.Xresources` and loads via `xrdb` autostart — fixes Steam CEF UI scaling on XWayland without blur
-14. Sets Lumon as default Omarchy theme
+14. Sets Nord as default Omarchy theme
 
 ## Key CachyOS vs Omarchy Conflicts Resolved
 
@@ -92,7 +92,7 @@ Changing `/etc/plymouth/plymouthd.conf` alone doesn't work — Plymouth runs fro
 ### US International keyboard layout
 User writes in Spanish on a US keyboard. `kb_layout = "us"` + `kb_variant = "intl"` enables ñ, accented vowels (á/é/í/ó/ú), and inverted punctuation (¡¿) via dead keys. Patched idempotently via `sed` on `input.lua`.
 
-### Lumon as default theme
+### Nord as default theme
 User's aesthetic preference. Applied last in the script so hooks (SDDM wallpaper sync, Limine splash sync) are already installed before the theme switch fires them.
 
 ## Snapshot Recovery (Snapper + BTRFS)
