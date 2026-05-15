@@ -451,7 +451,26 @@ echo "[*] Setting Nord theme..."
 omarchy theme set "Nord"
 echo "[*] Nord theme applied."
 
-# 17. Copy GitHub keys to clipboard
+# 18. Waybar: larger profile (32px height, 14px font)
+WAYBAR_CONFIG="$HOME/.config/waybar/config.jsonc"
+WAYBAR_STYLE="$HOME/.config/waybar/style.css"
+
+if [[ -f "$WAYBAR_CONFIG" ]]; then
+    sed -i 's/"height": 26,/"height": 32,/' "$WAYBAR_CONFIG"
+    echo "[*] Waybar height set to 32px."
+fi
+
+if [[ -f "$WAYBAR_STYLE" ]]; then
+    sed -i 's/font-size: 12px;/font-size: 14px;/' "$WAYBAR_STYLE"
+    sed -i 's/margin-left: 8px;/margin-left: 10px;/' "$WAYBAR_STYLE"
+    sed -i 's/margin-right: 8px;/margin-right: 10px;/' "$WAYBAR_STYLE"
+    sed -i 's/padding: 0 6px;/padding: 0 8px;/' "$WAYBAR_STYLE"
+    sed -i 's/margin: 0 1.5px;/margin: 0 2px;/' "$WAYBAR_STYLE"
+    sed -i 's/min-width: 9px;/min-width: 10px;/' "$WAYBAR_STYLE"
+    echo "[*] Waybar style updated (14px font, larger spacing)."
+fi
+
+# 19. Copy GitHub keys to clipboard
 echo ""
 echo "[*] Ahora vamos a copiar tus llaves de GitHub al portapapeles una a una."
 echo "    Agrégalas en: github.com → Settings → SSH and GPG keys"
