@@ -27,7 +27,8 @@ Personal post-install customization script. Idempotent — safe to re-run. Steps
 3. Sets Iosevka Nerd Font as system font
 4. Adds macOS-style screenshot bindings + remaps `SUPER+SHIFT+N` → `SUPER+CTRL+N` for window-to-workspace
 5. Adds `SUPER+CTRL+arrows` workspace navigation
-6. Sets `rounding = 12` in `looknfeel.lua`
+6. Installs logarithmic volume scripts (`omarchy-volume-up/down`) and overrides volume keys for perceptually-uniform steps
+7. Sets `rounding = 12` in `looknfeel.lua`
 7. Rewrites SDDM `Main.qml` to match Omarchy/hyprlock visual style
 8. Disables SDDM autologin, ensures `theme.conf` persists separately
 9. Sets US International keyboard layout
@@ -91,6 +92,9 @@ Changing `/etc/plymouth/plymouthd.conf` alone doesn't work — Plymouth runs fro
 
 ### US International keyboard layout
 User writes in Spanish on a US keyboard. `kb_layout = "us"` + `kb_variant = "intl"` enables ñ, accented vowels (á/é/í/ó/ú), and inverted punctuation (¡¿) via dead keys. Patched idempotently via `sed` on `input.lua`.
+
+### Logarithmic volume steps
+PulseAudio's cubic scale makes flat percentage steps feel uneven — huge jumps at low volumes, imperceptible at high. The fix: `omarchy-volume-up/down` scripts in `~/.local/bin/` multiply the PA percentage by `10^(±1/30)` (≈ ×1.08 / ×0.926) per keypress, which equals a constant ±2 dB step at any level. `awk` is used for the float math (no `bc` on CachyOS). Volume keys are re-bound in `bindings.lua` to these scripts; `swayosd-client --output-volume +0` triggers the OSD display without double-changing the volume.
 
 ### Nord as default theme
 User's aesthetic preference. Applied last in the script so hooks (SDDM wallpaper sync, Limine splash sync) are already installed before the theme switch fires them.

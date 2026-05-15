@@ -137,7 +137,50 @@ EOF
     echo "[*] Workspace arrow navigation applied."
 fi
 
-# 10. macOS-style rounded window corners
+# 10. Logarithmic volume steps (equal perceived change at any level, like Windows/macOS)
+mkdir -p "$HOME/.local/bin"
+
+cat > "$HOME/.local/bin/omarchy-volume-up" << 'EOF'
+#!/bin/bash
+monitor=$(omarchy-hyprland-monitor-focused)
+current=$(pamixer --get-volume)
+
+# +2 dB: multiply by 10^(1/30) ≈ 1.0801
+new=$(awk -v v="$current" 'BEGIN { n=int(v * 1.0801 + 0.5); print (n > v) ? n : v+1 }')
+[[ $new -gt 100 ]] && new=100
+
+pactl set-sink-volume @DEFAULT_SINK@ ${new}%
+swayosd-client --monitor "$monitor" --output-volume +0
+EOF
+chmod +x "$HOME/.local/bin/omarchy-volume-up"
+
+cat > "$HOME/.local/bin/omarchy-volume-down" << 'EOF'
+#!/bin/bash
+monitor=$(omarchy-hyprland-monitor-focused)
+current=$(pamixer --get-volume)
+
+# -2 dB: multiply by 10^(-1/30) ≈ 0.9259
+new=$(awk -v v="$current" 'BEGIN { n=int(v * 0.9259 + 0.5); print (n < v) ? n : (v > 0 ? v-1 : 0) }')
+
+pactl set-sink-volume @DEFAULT_SINK@ ${new}%
+swayosd-client --monitor "$monitor" --output-volume +0
+EOF
+chmod +x "$HOME/.local/bin/omarchy-volume-down"
+
+BINDINGS_LUA="$HOME/.config/hypr/bindings.lua"
+if [[ -f "$BINDINGS_LUA" ]] && ! grep -q "Logarithmic volume" "$BINDINGS_LUA"; then
+    cat >> "$BINDINGS_LUA" << 'EOF'
+
+-- Volume: logarithmic dB steps (equal perceived change at any level, like Windows/macOS).
+hl.unbind("XF86AudioRaiseVolume")
+hl.unbind("XF86AudioLowerVolume")
+hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("omarchy-volume-up"), { locked = true, repeating = true, description = "Volume up" })
+hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("omarchy-volume-down"), { locked = true, repeating = true, description = "Volume down" })
+EOF
+    echo "[*] Logarithmic volume bindings applied."
+fi
+
+# 11. macOS-style rounded window corners
 LOOKNFEEL_LUA="$HOME/.config/hypr/looknfeel.lua"
 if [[ -f "$LOOKNFEEL_LUA" ]] && ! grep -q "rounding = 12" "$LOOKNFEEL_LUA"; then
     cat >> "$LOOKNFEEL_LUA" << 'EOF'
