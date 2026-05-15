@@ -51,7 +51,7 @@ fi
 
 # 6. Install personal software
 echo "[*] Installing personal software..."
-sudo pacman -S --needed --noconfirm steam discord zen-browser-bin spotify visual-studio-code-bin ttf-iosevka-nerd proton-cachyos proton-cachyos-slr heroic-games-launcher-bin xorg-xrdb
+sudo pacman -S --needed --noconfirm steam discord spotify visual-studio-code-bin ttf-iosevka-nerd inter-font adobe-source-serif-fonts proton-cachyos proton-cachyos-slr heroic-games-launcher-bin xorg-xrdb
 
 # Remove Omarchy's Discord webapp in favor of the native app installed above
 rm -f "$HOME/.local/share/applications/Discord.desktop"
@@ -81,10 +81,21 @@ echo "[*] Reboot app added to launcher."
 echo "[*] Installing Google Antigravity IDE from AUR..."
 yay -S --needed --noconfirm antigravity
 
-# 7. Set Iosevka Nerd Font as system font
-echo "[*] Setting Iosevka Nerd Font as system font..."
+# 7. Set system fonts: Iosevka (monospace), Inter (sans-serif), Source Serif 4 (serif)
+echo "[*] Setting system fonts (macOS style)..."
 omarchy font set "Iosevka Nerd Font"
-echo "[*] Font set."
+FONTS_CONF="$HOME/.config/fontconfig/fonts.conf"
+if [[ -f "$FONTS_CONF" ]]; then
+  xmlstarlet ed -L \
+    -u '//match[@target="pattern"][test/string="sans-serif"]/edit[@name="family"]/string' -v "Inter" \
+    -u '//match[@target="pattern"][test/string="serif"]/edit[@name="family"]/string' -v "Source Serif 4" \
+    -u '//alias[family="system-ui"]/prefer/family' -v "Inter" \
+    -u '//alias[family="-apple-system"]/prefer/family' -v "Inter" \
+    -u '//alias[family="BlinkMacSystemFont"]/prefer/family' -v "Inter" \
+    "$FONTS_CONF"
+  fc-cache -fv
+fi
+echo "[*] Fonts set: Iosevka Nerd Font (mono), Inter (sans-serif), Source Serif 4 (serif)."
 
 # 8. macOS-style keybindings: screenshots + remap move-window off SUPER+SHIFT+number
 BINDINGS_LUA="$HOME/.config/hypr/bindings.lua"

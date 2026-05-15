@@ -23,7 +23,7 @@ Installs NVIDIA 580xx proprietary drivers via CachyOS's `chwd` tool. Removes con
 ### `bin/gabotachak.sh`
 Personal post-install customization script. Idempotent — safe to re-run. Steps:
 1. Auto-detects monitor resolution and patches `~/.config/hypr/monitors.lua` for logical 1080p scaling
-2. Installs personal software (Steam, Discord, Zen Browser, Spotify, VSCode, Iosevka Nerd Font, Proton, Heroic, Antigravity, xorg-xrdb)
+2. Installs personal software (Steam, Discord, Spotify, VSCode, Iosevka Nerd Font, Proton, Heroic, Antigravity, xorg-xrdb)
 3. Sets Iosevka Nerd Font as system font
 4. Adds macOS-style screenshot bindings + remaps `SUPER+SHIFT+N` → `SUPER+CTRL+N` for window-to-workspace
 5. Adds `SUPER+CTRL+arrows` workspace navigation
