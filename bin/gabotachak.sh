@@ -418,7 +418,26 @@ fi
 rm -f "$HOME/.config/environment.d/steam-scale.conf"
 rm -f "$HOME/.local/share/applications/steam.desktop"
 
-# 16. Set Nord as default theme
+# 16. Claude Code plugins
+echo "[*] Installing Claude Code plugins..."
+
+# Caveman: compresses Claude output ~65-75% using terse language
+if ! claude plugin list 2>/dev/null | grep -q "caveman"; then
+    curl -fsSL https://raw.githubusercontent.com/JuliusBrussee/caveman/main/install.sh | bash
+    echo "[*] Caveman installed."
+else
+    echo "[*] Caveman already installed, skipping."
+fi
+
+# find-skills: discover and install skills from the skills.sh marketplace
+if [[ ! -d "$HOME/.agents/skills/find-skills" ]]; then
+    cd "$HOME" && npx skills add https://github.com/vercel-labs/skills --skill find-skills
+    echo "[*] find-skills installed."
+else
+    echo "[*] find-skills already installed, skipping."
+fi
+
+# 17. Set Nord as default theme
 echo "[*] Setting Nord theme..."
 omarchy theme set "Nord"
 echo "[*] Nord theme applied."
