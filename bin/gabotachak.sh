@@ -43,6 +43,15 @@ sed -i "s/local omarchy_monitor_scale = .*/local omarchy_monitor_scale = $SCALE/
 
 echo "[*] monitors.lua patched."
 
+# 4.5. Ensure hyprland.lua has helpers required early (Fix for Omarchy 4.0.0.alpha)
+HYPRLAND_LUA="$HOME/.config/hypr/hyprland.lua"
+if [[ -f "$HYPRLAND_LUA" ]] && ! grep -q 'require("default.hypr.helpers")' "$HYPRLAND_LUA"; then
+    echo "[*] Patching hyprland.lua to include helpers..."
+    sed -i '/package.path = .*/a \
+\
+require("default.hypr.helpers")' "$HYPRLAND_LUA"
+fi
+
 # 5. Reload Hyprland if running
 if command -v hyprctl &>/dev/null && hyprctl monitors &>/dev/null 2>&1; then
     hyprctl reload
@@ -50,8 +59,8 @@ if command -v hyprctl &>/dev/null && hyprctl monitors &>/dev/null 2>&1; then
 fi
 
 # 6. Install personal software
-echo "[*] Installing personal software..."
-sudo pacman -S --needed --noconfirm steam discord spotify visual-studio-code-bin ttf-iosevka-nerd inter-font adobe-source-serif-fonts proton-cachyos proton-cachyos-slr heroic-games-launcher-bin xorg-xrdb vlc
+echo "[*] Installing personal software via Omarchy..."
+omarchy pkg add steam discord spotify visual-studio-code-bin ttf-iosevka-nerd inter-font adobe-source-serif-fonts proton-cachyos proton-cachyos-slr heroic-games-launcher-bin xorg-xrdb vlc
 
 # Remove Omarchy's Discord webapp in favor of the native app installed above
 rm -f "$HOME/.local/share/applications/Discord.desktop"
@@ -79,7 +88,7 @@ EOF
 echo "[*] Reboot app added to launcher."
 
 echo "[*] Installing Google Antigravity IDE from AUR..."
-yay -S --needed --noconfirm antigravity
+omarchy pkg aur add antigravity
 
 # 7. Set system fonts: Iosevka (monospace), Inter (sans-serif), Source Serif 4 (serif)
 echo "[*] Setting system fonts (macOS style)..."
@@ -108,15 +117,15 @@ for workspace = 1, 10 do
   local key = "code:" .. tostring(workspace + 9)
   hl.unbind("SUPER + SHIFT + " .. key)
   hl.unbind("SUPER + SHIFT + ALT + " .. key)
-  hl.bind("SUPER + CTRL + " .. key, hl.dsp.window.move({ workspace = tostring(workspace) }), { description = "Move window to workspace " .. workspace })
-  hl.bind("SUPER + CTRL + ALT + " .. key, hl.dsp.window.move({ workspace = tostring(workspace), follow = false }), { description = "Move window silently to workspace " .. workspace })
+  o.bind("SUPER + CTRL + " .. key, "Move window to workspace " .. workspace, hl.dsp.window.move({ workspace = tostring(workspace) }))
+  o.bind("SUPER + CTRL + ALT + " .. key, "Move window silently to workspace " .. workspace, hl.dsp.window.move({ workspace = tostring(workspace), follow = false }))
 end
-hl.bind("SUPER + SHIFT + code:12", hl.dsp.exec_cmd("omarchy capture screenshot fullscreen copy"), { description = "Screenshot fullscreen → clipboard (macOS Cmd+Shift+3)" })
-hl.bind("SUPER + SHIFT + code:13", hl.dsp.exec_cmd("omarchy capture screenshot region copy"), { description = "Screenshot region → clipboard (macOS Cmd+Shift+4)" })
-hl.bind("SUPER + SHIFT + code:14", hl.dsp.exec_cmd("omarchy capture screenshot smart copy"), { description = "Screenshot smart → clipboard (macOS Cmd+Shift+5)" })
-hl.bind("SUPER + CTRL + SHIFT + code:12", hl.dsp.exec_cmd("omarchy capture screenshot fullscreen save"), { description = "Screenshot fullscreen → file" })
-hl.bind("SUPER + CTRL + SHIFT + code:13", hl.dsp.exec_cmd("omarchy capture screenshot region save"), { description = "Screenshot region → file" })
-hl.bind("SUPER + CTRL + SHIFT + code:14", hl.dsp.exec_cmd("omarchy capture screenshot smart save"), { description = "Screenshot smart → file" })
+o.bind("SUPER + SHIFT + code:12", "Screenshot fullscreen → clipboard (macOS Cmd+Shift+3)", "omarchy capture screenshot fullscreen copy")
+o.bind("SUPER + SHIFT + code:13", "Screenshot region → clipboard (macOS Cmd+Shift+4)", "omarchy capture screenshot region copy")
+o.bind("SUPER + SHIFT + code:14", "Screenshot smart → clipboard (macOS Cmd+Shift+5)", "omarchy capture screenshot smart copy")
+o.bind("SUPER + CTRL + SHIFT + code:12", "Screenshot fullscreen → file", "omarchy capture screenshot fullscreen save")
+o.bind("SUPER + CTRL + SHIFT + code:13", "Screenshot region → file", "omarchy capture screenshot region save")
+o.bind("SUPER + CTRL + SHIFT + code:14", "Screenshot smart → file", "omarchy capture screenshot smart save")
 EOF
     echo "[*] Screenshot bindings applied."
 fi
@@ -129,10 +138,10 @@ if [[ -f "$BINDINGS_LUA" ]] && ! grep -q "SUPER + CTRL + LEFT.*workspace" "$BIND
 -- SUPER+CTRL+arrows: workspace navigation (overrides niche group-focus bindings).
 hl.unbind("SUPER + CTRL + LEFT")
 hl.unbind("SUPER + CTRL + RIGHT")
-hl.bind("SUPER + CTRL + LEFT",  hl.dsp.focus({ workspace = "-1" }), { description = "Previous workspace" })
-hl.bind("SUPER + CTRL + RIGHT", hl.dsp.focus({ workspace = "+1" }), { description = "Next workspace" })
-hl.bind("SUPER + CTRL + UP",    hl.dsp.focus({ workspace = "+1" }), { description = "Next workspace" })
-hl.bind("SUPER + CTRL + DOWN",  hl.dsp.focus({ workspace = "-1" }), { description = "Previous workspace" })
+o.bind("SUPER + CTRL + LEFT",  "Previous workspace", hl.dsp.focus({ workspace = "-1" }))
+o.bind("SUPER + CTRL + RIGHT", "Next workspace",     hl.dsp.focus({ workspace = "+1" }))
+o.bind("SUPER + CTRL + UP",    "Next workspace",     hl.dsp.focus({ workspace = "+1" }))
+o.bind("SUPER + CTRL + DOWN",  "Previous workspace", hl.dsp.focus({ workspace = "-1" }))
 EOF
     echo "[*] Workspace arrow navigation applied."
 fi
@@ -174,8 +183,8 @@ if [[ -f "$BINDINGS_LUA" ]] && ! grep -q "Logarithmic volume" "$BINDINGS_LUA"; t
 -- Volume: logarithmic dB steps (equal perceived change at any level, like Windows/macOS).
 hl.unbind("XF86AudioRaiseVolume")
 hl.unbind("XF86AudioLowerVolume")
-hl.bind("XF86AudioRaiseVolume", hl.dsp.exec_cmd("omarchy-volume-up"), { locked = true, repeating = true, description = "Volume up" })
-hl.bind("XF86AudioLowerVolume", hl.dsp.exec_cmd("omarchy-volume-down"), { locked = true, repeating = true, description = "Volume down" })
+o.bind("XF86AudioRaiseVolume", "Volume up", "omarchy-volume-up", { locked = true, repeating = true })
+o.bind("XF86AudioLowerVolume", "Volume down", "omarchy-volume-down", { locked = true, repeating = true })
 EOF
     echo "[*] Logarithmic volume bindings applied."
 fi
